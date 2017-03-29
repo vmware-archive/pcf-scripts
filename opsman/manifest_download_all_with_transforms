@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -o pipefail
+
+scripts/opsman/login
+
+TEMP_FILE=./deployments/temp_opsman_download.yml
+
+
+echo -e "\e[34mAre ya ready, kids?\e[0m"
+for aye in $(./scripts/opsman/product_list); do
+  deployment_name=$(echo $aye | ruby -pe 'gsub(/-[0-9a-f]{20}$/, "")')
+  echo "Downloading ${deployment_name}..."
+  ./scripts/opsman/manifest_download ${aye} | \
+  ./scripts/manifest/remove_job_uuid | \
+  ./scripts/manifest/add_environment_to_deployment_name | \
+  ./scripts/manifest/set_metron_agent_deployment_name | \
+  ./scripts/manifest/populate_bosh_director_uuid > \
+  $TEMP_FILE
+
+  #Any PCF environment that uses datadog nozzle can be included for this conditional
+  if [ $ENVIRONMENT_NAME == "pcf_beijing" ]; then
+    if [ $deployment_name == "cf" ]; then
+      cat $TEMP_FILE | ./scripts/manifest/cf_add_datadog_nozzle_client > ${TEMP_FILE}.new
+      rm -f $TEMP_FILE
+      mv ${TEMP_FILE}.new $TEMP_FILE
+    fi
+  fi
+
+  if [ $? -eq 0 ]; then
+    FILENAME=$(ruby -r yaml -e "file = File.read('$TEMP_FILE'); puts YAML.parse(file).to_ruby['name']" )
+    mv $TEMP_FILE ./deployments/${FILENAME}.yml
+    echo "Success!"
+  else
+    echo "Error downloading or transforming ${deployment_name}!"
+    rm -f $TEMP_FILE
+  fi
+done
+
+echo -e "\e[34mAye, aye, captain!\e[0m"

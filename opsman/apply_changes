@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+echo "WARNING:  This currently doesn't run any errands"
+INSTALLATION_ID=$(./scripts/opsman/curl /api/v0/installations -X POST -d '{}' | jq '.install.id')
+
+export VERBOSE="" # disable verbose output for scripts/opsman/login
+echo "Waiting for installation ${INSTALLATION_ID} to complete ..."
+while [[ $(./scripts/opsman/curl /api/v0/installations/${INSTALLATION_ID} | jq --raw-output '.status') == "running" ]]; do echo -n "." && sleep 10; done
+
+./scripts/opsman/curl /api/v0/installations/${INSTALLATION_ID}/logs | json2yaml

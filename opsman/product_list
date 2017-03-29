@@ -1,0 +1,8 @@
+#!/bin/bash
+endpoint=/api/v0/staged/products
+scripts/opsman/curl $endpoint \
+  | ruby \
+    -ryaml \
+    -rjson \
+    -e "object=JSON.parse(STDIN.read);
+        object.each { |v| puts v['guid'] };"

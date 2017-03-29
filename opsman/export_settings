@@ -1,0 +1,14 @@
+#!/bin/bash
+today=`date '+%Y_%m_%d__%H_%M_%S'`;
+set -evx
+
+# FQDN of OpsMan will be included in the backup filename
+OPSMAN_NAME=${OPSMAN_URI/https:\/\//}
+OPSMAN_NAME=${OPSMAN_NAME/\//}
+
+curl "${OPSMAN_URI}/api/v0/installation_asset_collection" \
+  -X GET \
+  --verbose \
+  --insecure \
+  --header "Authorization: Bearer $(scripts/opsman/login)" \
+  -o backup_${OPSMAN_NAME}_${today}.zip

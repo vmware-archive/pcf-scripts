@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "opsman target: $OPSMAN_URI"
+\om -k -t $OPSMAN_URI -u $OPSMAN_USERNAME -p $OPSMAN_PASSWORD $@

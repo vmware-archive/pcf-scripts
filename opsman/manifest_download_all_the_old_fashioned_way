@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#The way your grandpappy used to get manifests. Works well when you're working directly on the OpsMang VM.
+#Prereqs: You must be logged into the correct bosh director before running this
+
+set -e
+#OpsMang VM will have bosh as an alias. This is gross and should be dealt with... but not today.
+shopt -s expand_aliases
+source ~/.bash_aliases
+
+echo -e "\e[33mI think it's time to blow this scene. Get everybody and the stuff together.\e[0m\n"
+
+ALL_THE_MANIFESTS=$(bosh deployments | grep -Eo "^| ([a-z]*-)+[0-9a-f]+ ")
+for i in $ALL_THE_MANIFESTS
+do
+  CURRENT_PATH_FILENAME="./${i}.yml"
+  bosh -q download manifest $i $CURRENT_PATH_FILENAME
+done
+
+echo -e "\n\e[33mOkay, 3... 2... 1... Let's jam!\e[0m"

@@ -1,0 +1,1 @@
+curl -k https://localhost/api/v0/unlock -X PUT -H "Content-Type: application/json" -d "{\"passphrase\": \"$1\"}"

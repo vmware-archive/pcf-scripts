@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'pry'
+
+def cf_curl(resource, parameter='')
+  response = JSON.parse `cf curl /v2/#{resource}?#{parameter}`
+  raise "pagination" if response["total_pages"] && response["total_pages"] > 1
+  return response
+end
+
+def get_resources(resource, parameter='')
+#  puts "/v2/#{resource}?#{parameter}"
+  response = cf_curl(resource, parameter)
+  return response["resources"]
+end
+
+
+def get_space_name(space_guid)
+  unless @space_names[space_guid]
+    response = cf_curl("/spaces/#{space_guid}")
+    space_name =response['entity']['name']
+    org_guid = response['entity']['organization_guid']
+    org_name = get_org_name(org_guid)
+    @space_names[space_guid] = "#{org_name}/#{space_name}"
+  end
+  return @space_names[space_guid]
+end
+
+def get_org_name(org_guid)
+  unless @org_names[org_guid]
+    @org_names[org_guid] = cf_curl("/organizations/#{org_guid}")['entity']['name']
+  end
+  return @org_names[org_guid]
+end
+
+@space_names = {}
+@org_names = {}
+
+if ARGV.length != 1
+  puts "Usage: apps-using-service <SERVICE_NAME>"
+  exit 1
+end
+
+service_name = ARGV[0]
+services = get_resources('services').select {|v| v['entity']['label'] == service_name}
+if services.empty?
+  puts "can not find service #{service_name}"
+  exit 2
+end
+service_guid = services.first['metadata']['guid']
+puts "found service #{service_name} with guid #{service_guid}"
+service_plans = get_resources('service_plans', %Q|q=service_guid:#{service_guid}|)
+service_plans.each do |plan|
+  service_instances = []
+  service_bindings = []
+  sp_guid = plan['metadata']['guid']
+  puts "-- found plan #{plan['entity']['name']} with guid #{sp_guid} --"
+  service_instances.concat get_resources("service_plans/#{sp_guid}/service_instances")
+  service_instance_guids = service_instances.map { |i| i['metadata']['guid'] }
+  service_instance_guids.each do |si_guid|
+    service_bindings.concat get_resources("service_bindings", "q=service_instance_guid:#{si_guid}")
+  end
+  app_guids = service_bindings.map { |i| i['entity']['app_guid'] }
+  cfapps = []
+  app_guids.each do |app_guid|
+    cfapps.push cf_curl("apps/#{app_guid}/summary")
+  end
+  cfapps.each do |cfapp|
+    appname = cfapp['name']
+    appspace = get_space_name(cfapp['space_guid'])
+    puts "Name: #{appname} Space: #{appspace}"
+  end
+end

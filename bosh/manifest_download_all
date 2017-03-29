@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+SCRIPTDIR=$(dirname $0)
+
+[[ -d deployments ]] || {
+  echo "I do not know how to operate outside of the base of the working directory" >&2
+  echo "try navigating to $SCRIPTDIR/../.."
+  exit 1
+}
+
+scripts/bosh/login
+
+deployments=`bosh deployments | grep bosh | cut -f 2 -d " "`
+
+for deployment in $deployments; do
+  bosh download manifest $deployment > deployments/$deployment.yml
+done

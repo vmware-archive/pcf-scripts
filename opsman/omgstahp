@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+scripts/opsman/ssh sudo shutdown -r now
+
+
+

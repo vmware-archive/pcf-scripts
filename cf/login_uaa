@@ -1,0 +1,7 @@
+#!/bin/bash
+
+which uaac >/dev/null || gem install cf-uaac
+
+uaac target ${CF_UAA_URI:?}/ --skip-ssl-validation
+uaac token client get admin -s ${CF_UAA_ADMIN_CLIENT_SECRET:?}
+

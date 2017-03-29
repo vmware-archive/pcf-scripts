@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+chmod 400 config/pcf
+ssh -i config/pcf -F config/ssh_config opsman."${CF_SYS_DOMAIN:? this is an error message}" -l ubuntu -o StrictHostKeyChecking=no $@

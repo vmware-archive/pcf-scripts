@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+vm_types_body = JSON.parse(`./scripts/opsman/curl api/v0/vm_types`)
+openstack_vm_types = JSON.parse(`bash -c "source ./.env; openstack flavor list -f json"`)
+
+openstack_vm_types.each do |os_vm_type|
+  vm_type = {
+    'name' => os_vm_type['Name'],
+    'cpu' => os_vm_type['VCPUs'],
+    'ram' => os_vm_type['RAM'],
+    'ephemeral_disk' => os_vm_type['Disk'] # Because openstack returns 0 for most ephemeral disks
+  }
+  vm_types_body['vm_types'].push(os_vm_type)
+end
+
+puts vm_types
+

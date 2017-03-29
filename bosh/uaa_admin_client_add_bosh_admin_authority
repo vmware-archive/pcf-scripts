@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./scripts/bosh/login_uaa
+
+NEW_CLIENT_AUTHORITIES=$(uaac client get admin | ruby -r'yaml' -e'line = YAML.parse($stdin.read).to_ruby["authorities"].gsub(" ",",");  line = line =~ /bosh.admin/ ? line : line+ ",bosh.admin" ; puts line')
+uaac client  update admin --authorities "${NEW_CLIENT_AUTHORITIES:? unable to add bosh.admin to admin client}"

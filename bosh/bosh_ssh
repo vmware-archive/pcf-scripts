@@ -1,0 +1,17 @@
+SSH_OPTIONS="--gateway_host $BOSH_IP --gateway_user vcap --gateway_identity_file ./config/pcf"
+OPTIONS=""
+
+# see $1 is '-d'
+KEY="$1"
+case $KEY in
+    -d )
+    OPTIONS="$OPTIONS $KEY $2"
+    shift
+    shift
+    ;;
+esac
+
+bosh $OPTIONS ssh $SSH_OPTIONS $@
+
+# note, if you get a key mismatch error, and `--strict_host_key_checking no` doesn't help,
+# try `./scripts/bosh/ssh_director` and see if that works first.

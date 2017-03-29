@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+TODAY=$(date +%Y-%m-%d)
+
+scripts/opsman/ssh sudo cp /var/tempest/workspaces/default/actual-installation.yml{,-$TODAY}
+scripts/opsman/ssh sudo cp /var/tempest/workspaces/default/{,actual-}installation.yml

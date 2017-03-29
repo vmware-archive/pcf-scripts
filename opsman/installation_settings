@@ -1,0 +1,5 @@
+#!/bin/bash
+
+which json2yaml >/dev/null || gem install json2yaml >/dev/null
+
+scripts/opsman/curl /api/installation_settings -X GET | json2yaml

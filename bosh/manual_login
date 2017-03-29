@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+SCRIPTDIR=$(dirname $0)
+
+which bosh > /dev/null || gem install bosh_cli
+
+[[ "$BOSH_CA_CERT" == "" ]] && {
+  CA_CERT=""
+} || {
+  CA_CERT="--ca-cert ${BOSH_CA_CERT}"
+}
+
+echo "logging into ${BOSH_IP:?}" >&2
+bosh -n ${CA_CERT} target ${BOSH_IP:?}
+bosh login ${BOSH_CLIENT} ${BOSH_CLIENT_SECRET}

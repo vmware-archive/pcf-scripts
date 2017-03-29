@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+env = ENV.fetch('ENVIRONMENT_NAME', "")
+if env.empty?
+  STDERR.puts "ERROR: please set ENVIRONMENT_NAME"
+  exit 1
+end
+
+input = ARGF.read
+
+manifest = YAML.parse(input).to_ruby
+deployment = manifest["name"] + "_" + env
+
+manifest["name"] = deployment
+
+puts manifest.to_yaml

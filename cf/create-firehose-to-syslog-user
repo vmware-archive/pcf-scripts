@@ -1,0 +1,9 @@
+#!/bin/bash
+
+./scripts/cf/login_uaa
+
+user=firehose-to-syslog
+
+cf create-user $user ${1:?Please supply a password}
+uaac member add cloud_controller.admin $user
+uaac member add doppler.firehose $user

@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby 
+
+require 'yaml'
+
+##
+# Input job from manifest
+# Output something that is evaluated for truthiness
+def must_be_serial(jerb)
+  jerb["name"].match(/database/) 
+end
+
+data = YAML.load(ARGF)
+data['jobs'].each do |job| 
+  job['update'] = { 
+    'max_in_flight' => job['instances'] + 1, 
+    'serial' => false 
+  } unless must_be_serial(job)
+end
+data['update']['canaries'] = 0
+data['update']['max_in_flight'] = 99
+
+puts data.to_yaml

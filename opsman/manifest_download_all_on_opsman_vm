@@ -1,0 +1,11 @@
+#!/bin/bash
+
+thisdir=`dirname "$BASH_SOURCE"`
+
+export BUNDLE_GEMFILE=/home/tempest-web/tempest/web/vendor/bosh/Gemfile
+bosh () { bundle exec bosh "$@"; }
+export -f bosh
+
+bash -c "${thisdir}/manifest_download_all"
+
+

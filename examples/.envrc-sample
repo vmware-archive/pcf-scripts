@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "i workin"
+source venv/bin/activate
+source sandbox-openrc.sh
+
+export CF_SYS_DOMAIN=sys.example.com
+export CF_APPS_DOMAIN=apps.example.com
+
+export MGMT_NETWORK_ID=example
+export INNER_JUMPBOX_IP=1.2.3.4
+
+export OPSMAN_URI=https://opsman.$CF_SYS_DOMAIN
+export OPSMAN_USERNAME=omgadmin
+export OPSMAN_PASSWORD='12345'
+
+
+export UAA_ADMIN_CLIENT_SECRET=1235
+export UAA_DATADOG_CLIENT_SECRET=67889

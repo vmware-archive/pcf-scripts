@@ -1,0 +1,27 @@
+#!/bin/bash
+
+GUID="${1}"
+
+[[ "$GUID" == "" ]] && {
+  echo "Please supply one of these:"
+  scripts/opsman/product_list 2>/dev/null
+  echo deployed_director
+  exit 1
+}
+
+case $GUID in
+  deployed_director)
+    ENDPOINT=/api/v0/staged/director/manifest
+    ;;
+  *)
+    ENDPOINT=/api/v0/staged/products/${GUID}/manifest
+    ;;
+esac
+
+scripts/opsman/curl $ENDPOINT \
+  | ruby -ryaml -rjson \
+  -e "js=STDIN.read
+      if js.match('(MISSING)')
+        raise 'found MISSING. this manifest is broken!!!'
+      end
+      puts JSON.parse(js)['manifest'].to_yaml"

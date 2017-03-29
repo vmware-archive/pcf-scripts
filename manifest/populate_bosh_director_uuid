@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+manifest = YAML.load(ARGF)
+uuid = ENV.fetch('BOSH_UUID') { |_| `bash -c "bosh status --uuid | tr -d '\n'"` }
+manifest['director_uuid'] = uuid
+puts manifest.to_yaml

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#example input: pcf-metrics
+INPUT="${1:?Please supply the product name as an argument}"
+
+curl "https://network.pivotal.io/api/v2/products/${INPUT}/releases/" 2>/dev/null

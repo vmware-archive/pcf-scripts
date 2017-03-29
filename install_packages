@@ -1,0 +1,27 @@
+#!/bin/bash
+set -evx
+
+which virtualenv 1>/dev/null || {
+  pip install virtualenv
+}
+
+virtualenv --no-site-packages --distribute .venv && source .venv/bin/activate 
+
+pip install -U pip setuptools --no-use-wheel
+pip install sshuttle --no-use-wheel
+
+
+pip install pytz
+[[ "" -eq "${OS_AUTH_URL}" ]] || pip install python-openstackclient --no-use-wheel
+
+which bosh 1>/dev/null || gem install bosh_cli
+which cf 1>/dev/null || {
+  brew tap cloudfoundry/tap
+  brew install cf-cli
+}
+
+which uaac 1>/dev/null || {
+  gem install cf-uaac
+}
+
+cd ./scripts

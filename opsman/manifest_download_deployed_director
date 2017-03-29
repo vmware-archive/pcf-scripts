@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./scripts/opsman/curl /api/v0/staged/director/manifest | json2yaml | yq .manifest

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+scripts/opsman/login
+
+echo "Are ya ready, kids?"
+for aye in $(./scripts/opsman/product_list); do
+  ./scripts/opsman/manifest_download ${aye} | \
+  ./scripts/manifest/populate_bosh_director_uuid > \
+  ./deployments/${aye}.yml;
+done
+
+echo "Aye, aye, captain!"

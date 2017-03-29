@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scripts/opsman/curl /api/installation_settings -X POST -F "installation[file]=@${1:? supply the filepath to load opsman with}"

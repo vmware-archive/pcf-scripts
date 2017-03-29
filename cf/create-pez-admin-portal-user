@@ -1,0 +1,9 @@
+#!/bin/bash
+
+./scripts/cf/login_uaa
+
+user=pez-admin-portal
+
+cf create-user $user ${1:?Please supply a password}
+uaac member add cloud_controller.admin $user
+uaac member add uaa.admin $user

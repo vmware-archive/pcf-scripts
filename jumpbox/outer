@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Username?" && read usr && echo "$usr? Excellent choice."
+ssh -F ./config/ssh_config -l $usr outer

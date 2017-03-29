@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#example input: "https://network.pivotal.io/api/v2/products/pcf-metrics/releases/1925/product_files/5062/download"
+
+INPUT="${1:?Please supply the API download URL as the first argument}"
+PIVNET_API_TOKEN=${PIVNET_API_TOKEN:?required, Please ensure it is loaded into ENV}
+
+# check auth
+echo "Checking auth..."
+AUTH=$(curl -H "Accept: application/json" -H "Content-Type: application/json" \
+  -H "Authorization: Token $PIVNET_API_TOKEN" -X GET https://network.pivotal.io/api/v2/authentication)
+
+if [ -n "$AUTH" ]; then
+  echo "Auth error: ${AUTH}"
+  exit 1
+fi
+
+# accept eula
+echo
+echo "Accepting eula..."
+RELEASE=$(echo ${INPUT} | egrep -o ".+releases.[0-9]+")
+EULA=$(curl -X POST --header "Authorization: Token ${PIVNET_API_TOKEN}" ${RELEASE}/eula_acceptance )
+#echo $RELEASE
+echo $EULA
+#exit 1
+
+# get filename
+echo
+echo "Fetching filename..."
+FILENAME=$(curl -X POST --header "Authorization: Token ${PIVNET_API_TOKEN}" ${INPUT} -i  | grep Location | sed -e 's/^.*filename=//' | tr -d '\r')
+echo "Filename: ${FILENAME}"
+
+# download file
+echo
+echo "Downloading..."
+wget --post-data=\"\" -O ${FILENAME:?missing - check API token} "--header=Authorization: Token ${PIVNET_API_TOKEN}" ${INPUT}
+
+echo "File saved as ${FILENAME} lolololol" >&2

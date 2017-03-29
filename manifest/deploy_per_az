@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+data = YAML.load(ARGF)
+
+##
+# Populate newjobs by zone
+newjobs = {}
+errands = []
+data['jobs'].each do |job|
+  if job.fetch('lifecycle','not_errand') == 'errand'
+    errands << job
+  else
+    zone = job.fetch('properties', {}).fetch('metron_agent', {}).fetch('zone', nil)
+    raise "No zone specified in metron_agent for #{job.fetch('name', 'phantom job')}" unless zone
+
+    newjobs[zone] ||= []
+    newjobs[zone] << job
+  end
+end
+
+# set the last job of each zone to be serial: true
+newjobs.each do |zone, jobs|
+  update = jobs.last.fetch('update', {})
+  update['serial'] = true
+end
+
+##
+# fill jobs with zone-ordered joblists
+data['jobs'] = []
+newjobs.each do |zone, jobs|
+  data['jobs'] += jobs
+end
+
+## 
+# fill in errands
+errands.each do |errand|
+  data['jobs'] << errand
+end
+
+puts data.to_yaml

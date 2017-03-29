@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+ssh_opsman() { ssh -i config/pcf -F config/ssh_config opsman.${CF_SYS_DOMAIN:? this is an error message} -l ubuntu -o StrictHostKeyChecking=no $@;}
+
+if [ `./scripts/opsman/curl /api/v0/diagnostic_report | jq -r -c '.neutered'` == true ]; then
+  echo "this opsman is already neutered. skipping..."
+  exit
+fi
+
+chmod 400 config/pcf
+scp -i config/pcf -F config/ssh_config -o StrictHostKeyChecking=no scripts/opsman/neuter.rb ubuntu@opsman."${CF_SYS_DOMAIN:? this is an error message}":neuter.rb
+scp -i config/pcf -F config/ssh_config -o StrictHostKeyChecking=no scripts/opsman/decrypt ubuntu@opsman."${CF_SYS_DOMAIN:? this is an error message}":decrypt
+ssh_opsman sudo ruby neuter.rb
+ssh_opsman sudo service tempest-web stop
+sleep 3
+ssh_opsman sudo service tempest-web start
+sleep 60
+ssh_opsman bash ./decrypt $OPSMAN_DECRYPTION_KEY
+sleep 30

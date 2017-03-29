@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+env = ENV.fetch('DATADOG_NOZZLE_CLIENT_SECRET', "")
+if env.empty?
+  STDERR.puts "ERROR: please use an environment with DATADOG_NOZZLE_CLIENT_SECRET"
+  exit 1
+end
+
+datadog_nozzle_block = { "datadog-firehose-nozzle" => { 
+    "access-token-validity" => 1209600,
+    "authorized-grant-types" => "authorization_code,client_credentials,refresh_token",
+    "override" => true,
+    "secret" => ENV.fetch("DATADOG_NOZZLE_CLIENT_SECRET"),
+    "scope" => "openid,oauth.approvals,doppler.firehose",
+    "authorities" => "oauth.login,doppler.firehose"
+  } 
+}
+
+input = ARGF.read
+
+manifest = YAML.parse(input).to_ruby
+manifest["jobs"].each do |job|
+  if job["name"] == "uaa_z1"
+      job["properties"]["uaa"]["clients"].merge!(datadog_nozzle_block)
+  end
+end
+
+puts manifest.to_yaml

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -evx
+
+opsman_version="Opsman-1.7.6"
+
+
+if [ "$(openstack image list | grep -i $opsman_version)" == "" ]; then
+  ./scripts/openstack/upload_opsman_image.sh $opsman_version ~/pcf-openstack-1.7.6.raw
+fi
+./scripts/openstack/create_opsman.sh $opsman_version $opsman_version

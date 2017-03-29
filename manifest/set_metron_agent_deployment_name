@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+env = ENV.fetch('ENVIRONMENT_NAME', "")
+if env.empty?
+  STDERR.puts "ERROR: please set ENVIRONMENT_NAME"
+  exit 1
+end
+
+input = ARGF.read
+
+manifest = YAML.parse(input).to_ruby
+deployment = manifest["name"]
+
+manifest["jobs"].map{ |job|
+  job["properties"]["metron_agent"].tap { |metron_agent|
+    if metron_agent
+      metron_agent["deployment"] = deployment
+    else
+      metron_agent
+    end
+  }
+}
+
+puts manifest.to_yaml

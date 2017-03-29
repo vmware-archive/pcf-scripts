@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -evx
+
+curl "${OPSMAN_URI}/api/v0/installation_asset_collection" \
+  -F "installation[file]=@${2:?Filepath or GTFO}" \
+  -F "passphrase=${1:?Decryption phrase or GTFO}" \
+  --verbose \
+  --insecure \
+  --progress-bar \
+  -X POST

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "DEPRECATED - if using opsman >= 1.8, use apply_changes which uses standard API call"
+
+set -evx
+
+./scripts/node_modules/.bin/phantomjs \
+  --debug=true \
+  --ignore-ssl-errors=true \
+  ./scripts/opsman/opsmang_apply_changes.js

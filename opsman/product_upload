@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+BEARER_TOKEN=$(scripts/opsman/login)
+
+curl "https://opsman.${CF_SYS_DOMAIN:?}/api/v0/available_products" \
+  --form "product[file]=@${1:?please specify stemcell filename}" \
+  -X POST --verbose --compressed --location --insecure \
+  --header "Authorization: Bearer ${BEARER_TOKEN:?}"

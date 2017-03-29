@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+source vars.sh
+
+echo "no" | bosh -d "${1:?Please tell me what deployment manifest to dry run}" deploy || echo "done"

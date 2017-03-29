@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+CURR=`pwd`
+TMPDIR=`mktemp -d`
+cd $TMPDIR
+echo "Unpacking $1..."
+unzip $CURR/$1
+cd releases
+
+echo "Uploading releases..."
+for i in *.tgz; do
+  bosh upload release --skip-if-exists $i
+done
+
+echo "Cleaning up..."
+cd $CURR
+rm -rf $TMPDIR

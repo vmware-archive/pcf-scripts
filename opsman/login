@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+which uaac >/dev/null || gem install cf-uaac 1>&2
+
+function ping_opsman() {
+  echo "Couldn't connect to OpsMan. Will check connection to it and exit..."
+  curl --insecure --connect-timeout 5 $OPSMAN_URI
+  exit 1
+}
+
+uaac target ${OPSMAN_URI:?}/uaa/ --skip-ssl-validation 1>&2 >/dev/null
+uaac token owner get opsman ${OPSMAN_USERNAME:?} --secret "" --password "${OPSMAN_PASSWORD:?}" 1>&2 > /dev/null ||\
+  ping_opsman
+
+ruby -ryaml -e '
+  uaac = YAML.load_file(File.join(ENV.fetch("HOME"), ".uaac.yml"));
+  puts uaac[ENV.fetch("OPSMAN_URI") + "/uaa"]["contexts"]
+    .select{|k,v| v["client_id"] == "opsman" }
+    .first[1]["access_token"]'
+

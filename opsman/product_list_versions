@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl "https://opsman.${CF_SYS_DOMAIN}//api/v0/available_products" \
+  -X GET \
+  --silent \
+  --insecure \
+  --header "Authorization: Bearer $(scripts/opsman/login 2>/dev/null)"

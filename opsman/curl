@@ -1,0 +1,3 @@
+#!/bin/bash
+scripts/opsman/login > /dev/null
+uaac curl -k $OPSMAN_URI/$@  |sed '1,/RESPONSE BODY/ d'

@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+CURRENT_DIRECTORY = File.dirname(__FILE__)
+
+if ARGV.length != 2
+  puts "Invalid number of args. (2 expected)"
+  exit 1
+end
+
+product_name = ARGV[0]
+if ARGV[1] != "id" && ARGV[1] != "version"
+  puts "Please specify whether to print 'id' or 'version' in the second argument"
+  exit 1
+end
+target_property = ARGV[1]
+
+product_json = `#{CURRENT_DIRECTORY}/query_release_versions #{product_name}`
+if product_json.include?('could not find product')
+  puts "No data found for product '#{product_name}'"
+  exit 1
+end
+
+max = JSON.parse(product_json)['releases'].max_by do |release|
+  if release['version'].scan(/[A-Za-z]/).count > 0
+    Gem::Version.new('0')
+  else
+    Gem::Version.new(release['version'])
+  end
+end
+puts max[target_property]

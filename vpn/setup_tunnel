@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ -z "$INNER_JUMPBOX_IP" ]; then
+  echo "Missing env var. Have you run \`source .envrc\`?"
+  exit 1
+fi
+
+set -evx
+
+chmod 400 config/id_rsa_jb config/pcf
+
+. .venv/bin/activate
+
+# enter local workstation password to update sudo timer
+sudo -v
+
+# login to the outer jumpbox and wait 2 seconds for a sshuttle to start using the tunnel
+ssh outer -F config/ssh_config \
+  -L 2221:${INNER_JUMPBOX_IP:?}:22 \
+  -l ubuntu -i config/id_rsa_jb -f -o ExitOnForwardFailure=yes sleep 2
+
+# clear dns cache, only on macs
+uname | grep Darwin && sudo killall -HUP mDNSResponder
+
+for i in 1 2 3; do
+  sshuttle --verbose --verbose --dns --remote=clubawa@127.0.0.1:2221 10/8 \
+    --exclude=10.81.0.0/16 --exclude=10.84.0.0/16 --exclude 10.4.0.0/16 \
+    --ssh-cmd 'ssh -i config/pcf'
+  echo "lost connection? will retry in 5 seconds"
+  sleep 5
+done

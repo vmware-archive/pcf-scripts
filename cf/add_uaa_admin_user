@@ -1,0 +1,17 @@
+#! /bin/bash
+set -ex
+set -o pipefail
+
+if [ -z $1 ]; then
+  echo "usage: $0 <username>"
+  exit 1
+fi
+./scripts/cf/login_uaa
+uaac user get $1 | grep display | sort
+uaac member add scim.write $1 || true
+uaac member add clients.write $1 || true
+uaac member add clients.admin $1 || true
+uaac member add uaa.admin $1
+
+# to do user/client mgmt stuff, the user can now login by
+# $ uaac token owner get <uaa_admin_client> <user>  -s ''

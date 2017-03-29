@@ -1,0 +1,11 @@
+#! /bin/bash
+set -ex
+set -o pipefail
+
+if [ -z $1 ]; then
+  echo "usage: $0 <username>"
+  exit 1
+fi
+./scripts/cf/login_uaa
+uaac user get $1 | grep display | sort
+uaac member add cloud_controller.admin $1

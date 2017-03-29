@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+require 'date'
+require 'json'
+
+ENV['TZ'] = "PST"
+
+def date_of_next(day)
+  date  = Date.parse(day)
+  delta = date > Date.today ? 0 : 7
+  date + delta
+end
+
+body = ARGF.read
+subject = ENV['subject']
+servicenow_password = ENV.fetch('servicenow_password')
+servicenow_uri = ENV.fetch('servicenow_uri')
+start_date = ENV.fetch('start_date', 'null')
+
+puts "start_date is #{start_date}"
+
+if start_date == 'null'
+  puts "start_date is not set. exit"
+  exit
+end
+
+deploy_starts = date_of_next(start_date).strftime("%Y/%m/%d")
+deploy_ends = (date_of_next(start_date) + 1 ).strftime("%Y/%m/%d")
+
+postjson = {
+  "type" => "Business Event",
+  "u_elevated_approval_required" => "Business Event",
+  "u_sub_type_business_event" => "Configuration",
+  "requested_by" => "Pivotal Cloud Foundry API (pivotal-cloud-foundry-api)",
+  "u_change_classification" => "Delivery",
+  "cmdb_ci" => "Cloud Foundry",
+  "start_date" => "#{deploy_starts} 23:00:00",
+  "end_date"=>"#{deploy_ends} 09:00:00",
+  "short_description" => subject,
+  "description" => body
+}.to_json
+
+# this json can be pretty big. so we should save it into a file and use -d @file in curl command
+File.open('temp.json','w').write(postjson)
+
+unless system("curl -X POST -L --fail -d '@temp.json' \
+          --header 'Content-Type: application/json' \
+          --user pivotal-cloud-foundry-api:#{servicenow_password} " +
+          servicenow_uri)
+  STDERR.puts "call to servicenow failed"
+  exit 1
+end

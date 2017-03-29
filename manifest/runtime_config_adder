@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+
+# 
+# cat deployments/manifest.yml | runtime_config_adder -c deployments/runtime-config.yml
+# 
+# I'm going to be honest, we left "adder" in the name of this script so I could use
+# snake ascii art.
+logo = <<-EOF
+ ____  _     _      _____  _  _      _____   ____  ____  _      _____ _  _____
+/  __\/ \ /\/ \  /|/__ __\/ \/ \__/|/  __/  /   _\/  _ \/ \  /|/    // \/  __/
+|  \/|| | ||| |\ ||  / \  | || |\/|||  \    |  /  | / \|| |\ |||  __\| || |  _
+|    /| \_/|| | \||  | |  | || |  |||  /_   |  \_ | \_/|| | \||| |   | || |_//
+\_/\_\\____/\_/  \|  \_/  \_/\_/  \|\____\  \____/\____/\_/  \|\_/   \_/\____\
+
+                             ____  ____  ____  _____ ____ 
+                            /  _ \/  _ \/  _ \/  __//  __\
+                            | / \|| | \|| | \||  \  |  \/|
+                            | |-||| |_/|| |_/||  /_ |    /
+                            \_/ \|\____/\____/\____\\_/\_\
+                                                          
+            Y
+          .-^-.
+         /     \      .- ~ ~ -.
+        ()     ()    /   _ _   `.                     _ _ _
+         \_   _/    /  /     \   \                . ~  _ _  ~ .
+           | |     /  /       \   \             .' .~       ~-. `.
+           | |    /  /         )   )           /  /             `.`.
+           \ \_ _/  /         /   /           /  /                `'
+            \_ _ _.'         /   /           (  (
+                            /   /             \  \
+                           /   /               \  \
+                          /   /                 )  )
+                         (   (                 /  /
+                          `.  `.             .'  /
+                            `.   ~ - - - - ~   .'
+                               ~ . _ _ _ _ . ~
+EOF
+
+require 'optparse'
+require 'yaml'
+
+options = {}
+parser = OptionParser.new do |opts|
+  opts.banner = "Copies addons from a given runtime config to the manifest given as STDIN"
+
+  opts.on("-cCONFIG", "--runtime-config=CONFIG", "Runtime config") do |c|
+    options[:runtime_config] = c
+  end
+end
+parser.parse!
+
+
+unless options[:runtime_config]
+  STDERR.puts parser.help
+  STDERR.puts
+  STDERR.puts "runtime config is required"
+  exit 1
+end
+
+manifest = YAML.load(ARGF)
+runtime_config = YAML.load_file(options[:runtime_config])
+jobs = []
+properties = {}
+
+runtime_config['addons'].each do |addon|
+  properties.merge!(addon["properties"])
+
+  addon["jobs"].each do |job|
+    jobs << job
+  end
+end
+
+manifest["jobs"].each do |job|
+  job["properties"] = {} unless job["properties"]
+  job["templates"] += jobs
+  job["properties"].merge!(properties)
+end
+
+manifest["releases"] += runtime_config["releases"]
+
+puts manifest.to_yaml
