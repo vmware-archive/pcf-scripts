@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -o pipefail
+
+scripts/bosh/login
+scripts/opsman/login
+#scripts/opsman/mark_all_pending_changes_as_deployed
+
+TEMP_FILE=./deployments/temp_opsman_download.yml
+
+
+echo -e "\e[34mAre ya ready, kids?\e[0m"
+for aye in $(./scripts/opsman/product_list); do
+  deployment_name=$aye
+  echo "Downloading ${deployment_name}..."
+  ./scripts/opsman/manifest_download ${aye} | \
+  ./scripts/manifest/populate_bosh_director_uuid > \
+  $TEMP_FILE
+
+  if [ $? -eq 0 ]; then
+    FILENAME=$(ruby -r yaml -e "file = File.read('$TEMP_FILE'); puts YAML.parse(file).to_ruby['name']" )
+    mv $TEMP_FILE ./deployments/${FILENAME}.yml
+    echo "Success!"
+  else
+    echo "Error downloading or transforming ${deployment_name}!"
+    rm -f $TEMP_FILE
+  fi
+done
+
+echo -e "\e[34mAye, aye, captain!\e[0m"
