@@ -10,7 +10,7 @@ TEMP_FILE=./deployments/temp_opsman_download.yml
 
 
 echo -e "\e[34mAre ya ready, kids?\e[0m"
-for aye in $(./scripts/opsman/product_list); do
+for aye in $(./scripts/opsman/product_list | grep -v p-bosh); do
   deployment_name=$aye
   echo "Downloading ${deployment_name}..."
   ./scripts/opsman/manifest_download ${aye} | \
