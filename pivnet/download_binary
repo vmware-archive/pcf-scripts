@@ -33,6 +33,6 @@ echo "Filename: ${FILENAME}"
 # download file
 echo
 echo "Downloading..."
-wget --post-data=\"\" -O ${FILENAME:?missing - check API token} "--header=Authorization: Token ${PIVNET_API_TOKEN}" ${INPUT}
+wget -O ${FILENAME:?missing - check API token} "--header=Authorization: Token ${PIVNET_API_TOKEN}" ${INPUT}
 
 echo "File saved as ${FILENAME} lolololol" >&2
