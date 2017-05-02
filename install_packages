@@ -7,6 +7,7 @@ which virtualenv 1>/dev/null || {
 
 virtualenv --no-site-packages --distribute .venv && source .venv/bin/activate 
 
+pip install six packaging appdirs --no-use-wheel
 pip install -U pip setuptools --no-use-wheel
 pip install sshuttle --no-use-wheel
 
