@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require 'yaml'
+#require 'pp'
+
+yml = Dir.glob('deployments/p-redis-*.yml').first
+if yml.nil?
+  STDERR.puts "can not find deployments/p-redis-*.yml"
+  exit 1
+end
+
+hash = YAML.load_file yml
+broker_job = hash["instance_groups"].find {|i| i['name']=='cf-redis-broker'}
+properties = broker_job['properties']
+user = properties['redis']['broker']['auth']['username']
+password = properties['redis']['broker']['auth']['password']
+uri = properties['route_registrar']['routes'].first['uris'].first
+
+puts "curl -k -H 'X-Broker-API-Version: 2.11' -u #{user}:#{password} https://#{uri}/v2/catalog"
