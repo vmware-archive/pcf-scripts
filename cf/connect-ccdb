@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require 'yaml'
+#require 'pp'
+
+yml = Dir.glob('deployments/cf-*.yml').first
+if yml.nil?
+  STDERR.puts "can not find deployments/cf-*.yml"
+  exit 1
+end
+
+hash = YAML.load_file yml
+job = hash["instance_groups"].find {|i| i['name']=='cloud_controller'}
+ccdb = job['properties']['ccdb']
+address = ccdb['address']
+user = ccdb['roles'][0]['name']
+password = ccdb['roles'][0]['password']
+puts "mysql -h #{address} -u  #{user} -p#{password} ccdb"
