@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+yml = Dir.glob('deployments/cf-*.yml').first
+if yml.nil?
+  STDERR.puts "can not find deployments/cf-*.yml"
+  exit 1
+end
+
+hash = YAML.load_file yml
+job = hash["instance_groups"].find {|i| i['name']=='router'}
+ips = job['networks'][0]['static_ips']
+user = job['properties']['router']['status']['user']
+pwd = job['properties']['router']['status']['password']
+ips.each do |ip|
+  puts "curl -u #{user}:#{pwd} http://#{ip}:8080/routes"
+end
