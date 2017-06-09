@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -evx
-
-. .venv/bin/activate
-# login to the outer jumpbox and wait 15 seconds for a sshuttle to start using the tunnel
-
-sshuttle --verbose --verbose --dns --remote=jumpbox --ssh-cmd "ssh -F config/ssh_config" 10/8 \
-  --exclude=10.81.0.0/16 --exclude=10.84.0.0/16 --exclude 10.4.0.0/16
