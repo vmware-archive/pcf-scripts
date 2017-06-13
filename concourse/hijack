@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+url = ARGV[0]
+if ARGV[0].nil?
+  STDERR.puts "usage: hijack <build url>"
+  exit 1
+end
+
+match = url.match("teams/.+/pipelines/(.+)/jobs/(.+)/builds")
+if match.nil?
+  STDERR.puts "Sorry. I can not find pipeline or job info from the url. fix the url or me."
+  exit 1
+end
+
+pipeline = match[1]
+job = match[2]
+puts "fly hijack -j #{pipeline}/#{job}"
