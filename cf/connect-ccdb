@@ -14,4 +14,10 @@ ccdb = job['properties']['ccdb']
 address = ccdb['address']
 user = ccdb['roles'][0]['name']
 password = ccdb['roles'][0]['password']
-puts "mysql -h #{address} -u  #{user} -p#{password} ccdb"
+
+puts "-- login bosh..."
+`./scripts/bosh/login`
+puts "-- now please run:"
+puts "./scripts/bosh/bosh_ssh -d #{yml} cloud_controller/0"
+puts "-- then run:"
+puts "if ! which mysql; then apt-get update; sudo apt-get install -y mysql-client; fi; mysql -h #{address} -u  #{user} -p#{password} ccdb"
