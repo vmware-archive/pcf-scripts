@@ -6,8 +6,8 @@ require 'time'
 spaces=`cf spaces | grep cloudops-smoke-tests_`
 spaces.each_line do |s|
   m = s.match(/cloudops-smoke-tests_(201.*UTC)/).to_a[1]
-  if m && (Time.now - Time.parse(m) > 3600 *4 )
+  if m && (Time.now - Time.parse(m) > 3600 * 4 )
     puts "-- deleting #{s}"
-    `cf delete-space #{s} -f`
+    `cf delete-space #{s.chomp} -f`
   end
 end
