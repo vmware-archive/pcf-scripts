@@ -2,5 +2,5 @@
 
 curl "https://opsman.${CF_SYS_DOMAIN:?}/api/v0/installation_asset_collection"  \
   --form "installation[file]=@${1:? Please specify file to restore as first argument}" \
-  --form "passphrase=${2:? Please specify passphrase as second argument}" \
+  --form "passphrase=${OPSMAN_DECRYPTION_KEY:? Please set OPSMAN_DECRYPTION_KEY}" \
   -X POST --verbose --compressed --location --insecure
