@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require 'time'
+
+`./scripts/cf/login -o system -s system`
+
+# sample space MySQLATS-SPACE-1-2017_06_27-17h29m17.735s
+
+spaces=`cf spaces | grep MySQLATS-SPACE-`
+spaces.each_line do |s|
+  m = s.match(/MySQLATS-SPACE-1-(201.*)-/).to_a[1]
+  if m && (Time.now - Time.parse(m.gsub('_', '-')) > 3600 * 24 * 3 )
+    puts "-- deleting #{s}"
+    `cf delete-space #{s.chomp} -f`
+  end
+end
