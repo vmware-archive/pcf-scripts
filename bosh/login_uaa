@@ -1,6 +1,6 @@
 #!/bin/bash
 
-which uaac > /dev/null || gem install cf-uaac
+which uaac > /dev/null || gem install cf-uaac --no-ri --no-rdoc
 
 uaac target ${BOSH_IP:?}:8443/ --skip-ssl-validation
 uaac token client get ${BOSH_CLIENT:?} --secret "${BOSH_CLIENT_SECRET:?}"

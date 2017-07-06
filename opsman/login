@@ -2,7 +2,7 @@
 
 set -e
 
-which uaac >/dev/null || gem install cf-uaac 1>&2
+which uaac >/dev/null || gem install cf-uaac --no-ri --no-rdoc 1>&2
 
 function ping_opsman() {
   echo "Couldn't connect to OpsMan. Will check connection to it and exit..."

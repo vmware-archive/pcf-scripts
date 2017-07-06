@@ -15,14 +15,14 @@ pip install sshuttle --no-use-wheel
 pip install pytz
 [[ "" -eq "${OS_AUTH_URL}" ]] || pip install python-openstackclient --no-use-wheel
 
-which bosh 1>/dev/null || gem install bosh_cli
+which bosh 1>/dev/null || gem install bosh_cli --no-ri --no-rdoc
 which cf 1>/dev/null || {
   brew tap cloudfoundry/tap
   brew install cf-cli
 }
 
 which uaac 1>/dev/null || {
-  gem install cf-uaac
+  gem install cf-uaac --no-ri --no-rdoc
 }
 
 cd ./scripts

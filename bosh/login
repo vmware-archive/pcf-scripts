@@ -3,7 +3,7 @@ set -e
 
 SCRIPTDIR=$(dirname $0)
 
-which bosh > /dev/null || gem install bosh_cli
+which bosh > /dev/null || gem install bosh_cli --no-ri --no-rdoc
 
 [[ "$BOSH_CA_CERT" == "" ]] && {
   CA_CERT=""
