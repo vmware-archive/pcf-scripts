@@ -8,16 +8,20 @@ imap_password = ENV.fetch('IMAP_PASSWORD')
 env_name = ENV.fetch('ENVIRONMENT_NAME')
 
 def bye()
+  STDERR.puts "[IMAP] logout ..."
   @imap.logout()
   @imap.disconnect()
 end
 
 @imap = Net::IMAP.new(imap_server, port: 993, ssl: true)
+STDERR.puts "[IMAP] login ..."
 @imap.login(imap_user, imap_password)
+STDERR.puts "[IMAP] open INBOX ..."
 @imap.select('INBOX')
+STDERR.puts "[IMAP] search new msg ..."
 msg_ids = @imap.search(['SUBJECT',"#{env_name} notifications smoketest", 'UNSEEN'])
 if msg_ids.empty?
-  STDERR.puts "No new mail found"
+  STDERR.puts "[IMAP] No new mail found"
   bye
   exit 1
 else
@@ -26,7 +30,7 @@ end
 
 latest_id = msg_ids.last
 
-# set flags as SEEN.
+STDERR.puts "[IMAP] mark msgs SEEN ..."
 @imap.store(msg_ids, "+FLAGS", [:Seen])
 
 mail = @imap.fetch(latest_id,"BODY[HEADER.FIELDS (SUBJECT)]").first
