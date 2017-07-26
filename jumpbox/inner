@@ -1,3 +1,5 @@
 #!/bin/bash
-
-ssh -F ./config/ssh_config inner
+echo "Input username. Enter for default user from ssh_config"
+read usr
+[ -n "$usr" ] && flag="-l $usr" || flag=''
+ssh -F ./config/ssh_config $flag inner
