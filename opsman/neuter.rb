@@ -15,7 +15,7 @@ def backup_and_patch(path, from_pattern, to_pattern)
   File.open(path, 'w+') {|f| f.write(lines.join)}
 end
 
-path='/home/tempest-web/tempest/web/app/models/tempest/installation_steps/product_install_factory.rb'
+path='/home/tempest-web/tempest/web/app/models/tempest/installation_steps/product_install_builder.rb'
 from_pattern = '^ .*InstallationSteps::DeployProduct.new'
 to_pattern = 'CompoundStep.new'
 backup_and_patch(path,from_pattern, to_pattern)
