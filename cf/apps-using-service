@@ -4,14 +4,13 @@ require 'json'
 require 'pry'
 
 def cf_curl(resource, parameter='')
-  response = JSON.parse `cf curl /v2/#{resource}?#{parameter}`
-  raise "pagination" if response["total_pages"] && response["total_pages"] > 1
+  response = JSON.parse `cf curl '/v2/#{resource}?#{parameter}'`
   return response
 end
 
 def get_resources(resource, parameter='')
-#  puts "/v2/#{resource}?#{parameter}"
-  response = cf_curl(resource, parameter)
+  response = cf_curl(resource, 'results-per-page=100&' + parameter)
+  raise "pagination on #{resource} with #{parameter}" if response["total_pages"] && response["total_pages"] > 1
   return response["resources"]
 end
 
