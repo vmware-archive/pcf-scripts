@@ -14,7 +14,8 @@ uname | grep Darwin && sudo killall -HUP mDNSResponder
 
 for i in 1 2 3; do
   sshuttle --verbose --verbose --dns --remote=clubawa@inner 10.0.0.0/8 \
-    --ssh-cmd 'ssh -i config/pcf -F config/ssh_config'
+    --ssh-cmd 'ssh -i config/pcf -F config/ssh_config' \
+    -x 10.240.1.0/24
   echo "lost connection? will retry in 5 seconds"
   sleep 5
 done
