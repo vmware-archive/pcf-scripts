@@ -30,7 +30,7 @@ if curl -s -k --connect-timeout 5 https://10.107.48.22:25555 1>/dev/null; then
     echo "Connected to PCI shuttle"
 else
          echo "Connecting to PCI shuttle..."
-         sshuttle -D --pidfile /tmp/pci_shuttle.pid --dns --remote=${userid}@10.107.48.83 10.107.0.0/16 \
+         sshuttle -D --pidfile /tmp/pci_shuttle.pid --dns --remote=${userid}@pci_inner 10.107.0.0/16 \
          --ssh-cmd 'ssh -F config/ssh_config' \
          -x 10.107.32.0/24 \
          -x 10.107.40.0/21 \
@@ -40,18 +40,29 @@ else
          check_success "PCI Shuttle" 
 fi
 
+if curl -s -k --connect-timeout 5 https://10.116.39.139:25555 1>/dev/null; then
+    echo "Connected to Prod shuttle"
+else
+         echo "Connecting to Prod shuttle..."
+         sshuttle -D --pidfile /tmp/prod_shuttle.pid --dns --remote=${userid}@prod_inner 10.116.39.128/25 10.116.40.0/22  \
+         --ssh-cmd 'ssh -F config/ssh_config'
+         check_success "Prod Shuttle"
+fi
+
 #sleep 5
 
 if curl -s -k --connect-timeout 5 https://10.2.16.21:25555 1>/dev/null; then
     echo "Connected to general shuttle"
 else
 echo "Connecting to general shuttle..."
-         sshuttle -D --pidfile /tmp/general_shuttle.pid --dns --remote=${userid}@10.2.86.236 10.0.0.0/8 \
+         sshuttle -D --pidfile /tmp/general_shuttle.pid --dns --remote=${userid}@sandbox_inner 10.0.0.0/8 \
          --ssh-cmd 'ssh -F config/ssh_config' \
          -x 10.240.1.0/24  \
          -x 10.107.48.0/24 \
          -x 10.107.80.0/21 \
          -x 10.107.50.0/23 \
-         -x 10.107.52.0/23 
+         -x 10.107.52.0/23 \
+         -x 10.116.39.128/25 \
+         -x 10.116.40.0/22 
          check_success "General Shuttle"
 fi
