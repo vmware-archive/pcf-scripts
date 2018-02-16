@@ -45,7 +45,8 @@ if curl -s -k --connect-timeout 5 https://10.116.39.139:25555 1>/dev/null; then
 else
          echo "Connecting to Prod shuttle..."
          # cfdev-azw-mgmt - 10.116.55.128/25
-         sshuttle -D --pidfile /tmp/shuttle_prod.pid --dns --remote=${userid}@prod_inner 10.116.39.128/25 10.116.40.0/22 10.116.55.128/25 \
+         # cfdev-azw-ert - 10.116.56.0/22
+         sshuttle -D --pidfile /tmp/shuttle_prod.pid --dns --remote=${userid}@prod_inner 10.116.39.128/25 10.116.40.0/22 10.116.55.128/25 10.116.56.0/22 \
          --ssh-cmd 'ssh -F config/ssh_config'
          check_success "Prod Shuttle"
 fi
@@ -65,6 +66,7 @@ echo "Connecting to general shuttle..."
          -x 10.107.52.0/23 \
          -x 10.116.39.128/25 \
          -x 10.116.40.0/22 \
-         -x 10.116.55.128/25
+         -x 10.116.55.128/25 \
+         -x 10.116.56.0/22
          check_success "General Shuttle"
 fi
