@@ -61,6 +61,12 @@ cfdev_azwus_ert="10.116.56.0/22"
 # splunk
 splunk="10.107.64.182/32"
 
+# Chandler/Phoenix Openstack
+chacloud_openstack="10.107.232.20/32"
+
+# RCC Openstack
+rcccloud_openstack="10.2.71.20/32"
+
 
 # Rules load and are evaluated in reverse order. We want to load the catchall
 # chain first since it will be the last evaluated.
@@ -75,6 +81,7 @@ echo "Connecting to general shuttle..."
          ${cfdev_phx_mgmt} \
          ${cfdev_phx_ert} \
          ${splunk} \
+         ${rcccloud_openstack} \
          --ssh-cmd 'ssh -F config/ssh_config'
          check_success "General Shuttle"
 fi
@@ -90,6 +97,7 @@ else
          ${cfdev_azwus_ert} \
          ${cfprod_phx_ert} \
          ${cfprod_phx_mgmt} \
+         ${chacloud_openstack} \
          --ssh-cmd 'ssh -F config/ssh_config'
          check_success "Prod Shuttle"
 fi
