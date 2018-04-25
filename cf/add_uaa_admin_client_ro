@@ -1,0 +1,12 @@
+#! /bin/bash
+set -ex
+set -o pipefail
+
+if [ -z $1 ]; then
+  echo "usage: $0 <username>"
+  exit 1
+fi
+./scripts/cf/login_uaa
+uaac client get $1 || true
+uaac client add $1 --scope 'uaa.user,scim.read,scim.userids,clients.read' \
+  --authorities uaa.none --authorized_grant_types password -s ''

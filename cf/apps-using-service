@@ -9,11 +9,22 @@ def cf_curl(resource, parameter='')
 end
 
 def get_resources(resource, parameter='')
-  response = cf_curl(resource, 'results-per-page=100&' + parameter)
-  raise "pagination on #{resource} with #{parameter}" if response["total_pages"] && response["total_pages"] > 1
-  return response["resources"]
-end
+  resources = []
+  response = cf_curl(resource, 'results-per-page=10&' + parameter)
 
+  for r in response["resources"]
+    resources << r
+  end
+
+  while response["next_url"]
+    response = JSON.parse `cf curl '#{response["next_url"]}'`
+    for r in response["resources"]
+      resources << r
+    end
+  end
+
+  return resources
+end
 
 def get_space_name(space_guid)
   unless @space_names[space_guid]

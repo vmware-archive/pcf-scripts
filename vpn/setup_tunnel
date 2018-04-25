@@ -2,6 +2,15 @@
 
 set -e
 
+usage(){
+	echo "Usage: $0 gap_userid"
+	exit 1
+}
+
+[[ $# -eq 0 ]] && usage
+
+userid=${1}
+
 chmod 400 config/id_rsa_jb config/pcf
 
 . .venv/bin/activate
@@ -9,12 +18,97 @@ chmod 400 config/id_rsa_jb config/pcf
 # enter local workstation password to update sudo timer
 sudo -v
 
-# clear dns cache, only on macs
-uname | grep Darwin && sudo killall -HUP mDNSResponder
+check_success(){
+    if [[ $? -eq 0 ]]; then
+        echo "Connected to ${1}"
+    else
+        echo "Failed to connect to ${1}"
+    fi
+}
 
-for i in 1 2 3; do
-  sshuttle --verbose --verbose --dns --remote=clubawa@inner 10.0.0.0/8 \
-    --ssh-cmd 'ssh -i config/pcf -F config/ssh_config'
-  echo "lost connection? will retry in 5 seconds"
-  sleep 5
-done
+# cfprod-openstack
+cfprod_phx_mgmt="10.107.32.0/24"
+cfprod_phx_ert="10.107.40.0/21"
+cfprod_phx_svc="10.107.34.0/23"
+cfprod_phx_svc_ipsec="10.107.36.0/23"
+
+# cfpci-openstack
+cfpci_phx_mgmt="10.107.48.0/24"
+cfpci_phx_ert="10.107.80.0/21"
+cfpci_phx_svc="10.107.50.0/23"
+cfpci_phx_svc_ipsec="10.107.52.0/23"
+
+# cfdev-openstack
+cfdev_phx_mgmt="10.105.96.0/24"
+cfdev_phx_ert="10.105.104.0/21"
+cfdev_phx_svc="10.105.98.0/23"
+cfdev_phx_svc_ipsec="10.105.100.0/23"
+
+# cfsandbox-openstack
+cfsandbox_rcc_mgmt="10.2.16.0/24"
+cfsandbox_rcc_ert="10.2.24.0/21"
+cfsandbox_rcc_svc="10.2.18.0/23"
+cfsandbox_rcc_svc_ipsec="10.2.20.0/23"
+
+# cfprod-azwus
+cfprod_azwus_mgmt="10.116.39.128/25"
+cfprod_azwus_ert="10.116.40.0/22"
+
+# cfdev-azwus
+cfdev_azwus_mgmt="10.116.55.128/25"
+cfdev_azwus_ert="10.116.56.0/22"
+
+# splunk
+splunk="10.107.64.182/32"
+
+# Chandler/Phoenix Openstack
+chacloud_openstack="10.107.232.20/32"
+
+# RCC Openstack
+rcccloud_openstack="10.2.71.20/32"
+
+
+# Rules load and are evaluated in reverse order. We want to load the catchall
+# chain first since it will be the last evaluated.
+
+if curl -s -k --connect-timeout 5 https://10.2.16.21:25555 1>/dev/null; then
+    echo "Connected to general shuttle"
+else
+echo "Connecting to general shuttle..."
+         sshuttle -D --pidfile /tmp/shuttle_general.pid --remote=${userid}@sandbox_inner \
+         ${cfsandbox_rcc_mgmt} \
+         ${cfsandbox_rcc_ert} \
+         ${cfdev_phx_mgmt} \
+         ${cfdev_phx_ert} \
+         ${splunk} \
+         ${rcccloud_openstack} \
+         --ssh-cmd 'ssh -F config/ssh_config'
+         check_success "General Shuttle"
+fi
+
+if curl -s -k --connect-timeout 5 https://10.116.39.139:25555 1>/dev/null; then
+    echo "Connected to Prod shuttle"
+else
+         echo "Connecting to Prod shuttle..."
+         sshuttle -D --pidfile /tmp/shuttle_prod.pid --dns --remote=${userid}@prod_inner \
+         ${cfprod_azwus_mgmt} \
+         ${cfprod_azwus_ert} \
+         ${cfdev_azwus_mgmt} \
+         ${cfdev_azwus_ert} \
+         ${cfprod_phx_ert} \
+         ${cfprod_phx_mgmt} \
+         ${chacloud_openstack} \
+         --ssh-cmd 'ssh -F config/ssh_config'
+         check_success "Prod Shuttle"
+fi
+
+if curl -s -k --connect-timeout 5 https://10.107.48.22:25555 1>/dev/null; then
+    echo "Connected to PCI shuttle"
+else
+         echo "Connecting to PCI shuttle..."
+         sshuttle -D --pidfile /tmp/shuttle_pci.pid --remote=${userid}@pci_inner \
+         ${cfpci_phx_mgmt} \
+         ${cfpci_phx_ert} \
+         --ssh-cmd 'ssh -F config/ssh_config' 
+         check_success "PCI Shuttle" 
+fi
