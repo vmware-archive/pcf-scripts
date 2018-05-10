@@ -75,7 +75,7 @@ if curl -s -k --connect-timeout 5 https://10.2.16.21:25555 1>/dev/null; then
     echo "Connected to general shuttle"
 else
 echo "Connecting to general shuttle..."
-         sshuttle -D --pidfile /tmp/shuttle_general.pid --remote=${userid}@sandbox_inner \
+         sshuttle -D --disable-ipv6 --dns --pidfile /tmp/shuttle_general.pid --remote=${userid}@sandbox_inner \
          ${cfsandbox_rcc_mgmt} \
          ${cfsandbox_rcc_ert} \
          ${cfdev_phx_mgmt} \
@@ -90,7 +90,7 @@ if curl -s -k --connect-timeout 5 https://10.116.39.139:25555 1>/dev/null; then
     echo "Connected to Prod shuttle"
 else
          echo "Connecting to Prod shuttle..."
-         sshuttle -D --pidfile /tmp/shuttle_prod.pid --dns --remote=${userid}@prod_inner \
+         sshuttle -D --disable-ipv6 --pidfile /tmp/shuttle_prod.pid --remote=${userid}@prod_inner \
          ${cfprod_azwus_mgmt} \
          ${cfprod_azwus_ert} \
          ${cfdev_azwus_mgmt} \
@@ -106,7 +106,7 @@ if curl -s -k --connect-timeout 5 https://10.107.48.22:25555 1>/dev/null; then
     echo "Connected to PCI shuttle"
 else
          echo "Connecting to PCI shuttle..."
-         sshuttle -D --pidfile /tmp/shuttle_pci.pid --remote=${userid}@pci_inner \
+         sshuttle -D --disable-ipv6 --pidfile /tmp/shuttle_pci.pid --remote=${userid}@pci_inner \
          ${cfpci_phx_mgmt} \
          ${cfpci_phx_ert} \
          --ssh-cmd 'ssh -F config/ssh_config' 
