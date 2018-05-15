@@ -1,15 +1,12 @@
 #!/bin/bash
 set -e
 
+if bosh --version |grep BOSH; then
+    echo "Please switch from bosh v1 to bosh v2"
+    exit
+fi
+
 SCRIPTDIR=$(dirname $0)
 
-which bosh > /dev/null || gem install bosh_cli --no-ri --no-rdoc
-
-[[ "$BOSH_CA_CERT" == "" ]] && {
-  CA_CERT=""
-} || {
-  CA_CERT="--ca-cert ${BOSH_CA_CERT}"
-}
-
 echo "logging into ${BOSH_IP:?}" >&2
-bosh -n ${CA_CERT} target ${BOSH_IP:?}
+bosh login -e ${BOSH_ENVIRONMENT}

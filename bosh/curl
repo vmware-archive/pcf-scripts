@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 scripts/bosh/login_uaa 1>&2
 token="$(uaac context | awk '/^ *access_token\: *([a-zA-Z0-9.\/+\-_]+) *$/ {print $2}' -)"
-curl -H"Authorization: bearer $token" "${BOSH_ENVIRONMENT:?}${@}"
+curl -k -H"Authorization: bearer $token" "${BOSH_ENVIRONMENT:?}${@}"

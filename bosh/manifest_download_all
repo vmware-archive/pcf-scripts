@@ -12,8 +12,8 @@ SCRIPTDIR=$(dirname $0)
 
 scripts/bosh/login
 
-deployments=`bosh deployments | grep bosh | cut -f 2 -d " "`
+deployments=$(scripts/bosh/curl /deployments --insecure --silent | jq '.[].name' --raw-output)
 
 for deployment in $deployments; do
-  bosh download manifest $deployment > deployments/$deployment.yml
+  bosh manifest -d $deployment > deployments/$deployment.yml
 done

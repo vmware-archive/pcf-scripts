@@ -11,7 +11,7 @@ cd releases
 
 echo "Uploading releases..."
 for i in *.tgz; do
-  bosh upload release --skip-if-exists $i
+  bosh upload-release $i
 done
 
 echo "Cleaning up..."

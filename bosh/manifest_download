@@ -6,4 +6,4 @@
   exit 1
 }
 
-bosh download manifest ${1}
+bosh manifest -d ${1}
